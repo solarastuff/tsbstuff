@@ -78,6 +78,7 @@ game.Workspace.Gravity = tonumber(text) or 196.2
 task.wait(10)
 
 if not ModGravity then
+game.Workspace.Gravity = 196.2
 break
 
 end
