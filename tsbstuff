@@ -1,3 +1,4 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/solarastuff/tsbstuff/refs/heads/main/tsbstuff"))()
 -- a script dedicated so tsb (mid)
 
 local tpWalking = false
