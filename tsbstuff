@@ -1,7 +1,7 @@
 -- a script dedicated so tsb (mid)
 
 local tpWalking = false
-local tpWalkSpeed = 16
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 
