@@ -43,7 +43,7 @@ local Window = Rayfield:CreateWindow({
 
 local plrMods = Window:CreateTab("Visual & Plysics", 101213776917004) -- Title, Image
 
-local PhysicsSection = Tab:CreateSection("Physics")
+local PhysicsSection = plrMods:CreateSection("Physics")
 
 
 local speedToggle = plrMods:CreateToggle({
@@ -55,6 +55,7 @@ tpWalking = Value
    end,
 })
 
+local RunService = game:GetService("RunService")
 local speedSlider = plrMods:CreateSlider({
    Name = "Speed Amount",
    Range = {0, 100},
@@ -83,6 +84,9 @@ local speedSlider = plrMods:CreateSlider({
 end
 end)
 
+
+end,
+})
 
    end,
 })
