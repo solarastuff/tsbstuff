@@ -6,7 +6,7 @@ local Tab = Window:NewSection("Visauls & Physics")
 
 
 local ModdingSpeed = false
-local HowFast
+local HowFast = 0
 
  Tab:CreateToggle("Mod Speed", function(value)
 
@@ -15,7 +15,7 @@ ModdingSpeed = value
 end)
 
 Tab:CreateTextbox("speed", function(text)
-HowFast = text
+HowFast = tonumber(text) or 0
 
         -- Stop existing loop if already running
         if not ModdingSpeed then return end
