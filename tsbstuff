@@ -78,6 +78,10 @@ else
 game.Workspace.Gravity = 196.2
 end
 
+if not ModGravity then
+game.Workspace.Gravity = 196.2
+
+end
 
 end)
 
