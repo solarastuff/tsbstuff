@@ -71,17 +71,23 @@ end)
 Tab:CreateTextbox("TextBox", function(text)
 if ModGravity then
 
+while ModGravity do
+
 game.Workspace.Gravity = tonumber(text) or 196.2
+
+if not ModGravity then
+break
+
+end
+
+end
 
 else
 
 game.Workspace.Gravity = 196.2
 end
 
-if not ModGravity then
-game.Workspace.Gravity = 196.2
 
-end
 
 end)
 
