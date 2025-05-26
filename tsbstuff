@@ -6,6 +6,7 @@ local Tab = Window:NewSection("Visauls & Physics")
 
 
 local ModdingSpeed = false
+local HowFast
 
  Tab:CreateToggle("Mod Speed", function(value)
 
@@ -14,16 +15,26 @@ ModdingSpeed = value
 end)
 
 Tab:CreateTextbox("speed", function(text)
-if ModdingSpeed then
-while ModdingSpeed do
-       game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = text
-task.wait()
-end
+HowFast = text
 
-else
-game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
+        -- Stop existing loop if already running
+        if not ModdingSpeed then return end
+        
+        -- Run movement loop in a separate thread
+        task.spawn(function()
+            local hb = RunService.Heartbeat
+            local char = game.Players.LocalPlayer.Character
+            local hum = char and char:FindFirstChildWhichIsA("Humanoid")
+            
+            while ModdingSpeed and char and hum and hum.Parent do
+                local delta = hb:Wait()
+                if hum.MoveDirection.Magnitude > 0 then
+                    char:TranslateBy(hum.MoveDirection * delta * HowFast)
+                end
+            end
+        end)
+    
 
 
-end
 
 end)
