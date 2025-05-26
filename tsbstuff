@@ -39,6 +39,9 @@ Tab:CreateTextbox("0", function(text)
 end)
 
 
+
+
+
 Tab:CreateToggle("Mod FOV", function(value)
 
 ModFOV = value
@@ -73,6 +76,9 @@ game.Workspace.Gravity = tonumber(text) or 196.2
 else
 
 game.Workspace.Gravity = 196.2
+end
+
+
 end)
 
 
