@@ -75,6 +75,8 @@ while ModGravity do
 
 game.Workspace.Gravity = tonumber(text) or 196.2
 
+task.wait(10)
+
 if not ModGravity then
 break
 
