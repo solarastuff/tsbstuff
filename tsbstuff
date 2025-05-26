@@ -20,4 +20,7 @@ if ModdingSpeed then
 else
 game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
 
+
+end
+
 end)
