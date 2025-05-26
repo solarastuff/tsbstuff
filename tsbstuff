@@ -51,8 +51,15 @@ end)
 Tab:CreateTextbox("70", function(text)
 
 if ModFOV then
-
+while ModFOV do
 camera.FieldOfView = tonumber(text) or 70
+task.wait(0.1)
+
+if not ModFOV then
+camera.FieldOfView =  70
+break
+
+end
 
 else
 
@@ -68,7 +75,7 @@ ModGravity = value
 
 end)
 
-Tab:CreateTextbox("TextBox", function(text)
+Tab:CreateTextbox("196.2", function(text)
 if ModGravity then
 
 while ModGravity do
