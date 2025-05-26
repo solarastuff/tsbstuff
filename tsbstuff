@@ -57,16 +57,16 @@ tpWalking = Value
 })
 
 local RunService = game:GetService("RunService")
-local speedSlider = plrMods:CreateSlider({
-   Name = "Speed Amount",
-   Range = {0, 100},
-   Increment = 2,
-   Suffix = "Speed",
-   CurrentValue = 16,
-   Flag = "Slider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-
-   tpWalkSpeed = Value
+local speedSlider = plrmods:CreateSlider({
+    Name = "Speed Amount",
+    Range = {0, 120},
+    Increment = 2,
+    Suffix = "speed",
+    CurrentValue = 0,
+    Flag = "Slider1", 
+    Callback = function(Value)
+        
+        tpWalkSpeed = Value
 
         -- Stop existing loop if already running
         if not tpWalking then return end
@@ -82,12 +82,10 @@ local speedSlider = plrMods:CreateSlider({
                 if hum.MoveDirection.Magnitude > 0 then
                     char:TranslateBy(hum.MoveDirection * delta * tpWalkSpeed)
                 end
-end
-end)
-
-
-   end,
+            end
+        end)
+    
+end,
 })
-
 
 
