@@ -1,40 +1,36 @@
 local Library = loadstring(Game:HttpGet("https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wizard"))()
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
 
 local Window = Library:NewWindow("tsbstuff")
-
-local Tab = Window:NewSection("Visauls & Physics")
-
+local Tab = Window:NewSection("Visuals & Physics")
 
 local ModdingSpeed = false
 local HowFast = 0
 
- Tab:CreateToggle("Mod Speed", function(value)
+-- Speed Toggle
+Tab:CreateToggle("Mod Speed", function(value)
+    ModdingSpeed = value
 
-ModdingSpeed = value
-
-end)
-
-Tab:CreateTextbox("speed", function(text)
-HowFast = tonumber(text) or 0
-
-        -- Stop existing loop if already running
-        if not ModdingSpeed then return end
-        
-        -- Run movement loop in a separate thread
+    -- Start loop when toggled ON
+    if value then
         task.spawn(function()
-            local hb = RunService.Heartbeat
-            local char = game.Players.LocalPlayer.Character
-            local hum = char and char:FindFirstChildWhichIsA("Humanoid")
-            
-            while ModdingSpeed and char and hum and hum.Parent do
-                local delta = hb:Wait()
-                if hum.MoveDirection.Magnitude > 0 then
+            while ModdingSpeed do
+                local char = lp.Character
+                local hum = char and char:FindFirstChildWhichIsA("Humanoid")
+                if char and hum and hum.MoveDirection.Magnitude > 0 then
+                    local delta = RunService.Heartbeat:Wait()
                     char:TranslateBy(hum.MoveDirection * delta * HowFast)
+                else
+                    RunService.Heartbeat:Wait()
                 end
             end
         end)
-    
+    end
+end)
 
-
-
+-- Speed Value
+Tab:CreateTextbox("Speed", function(text)
+    HowFast = tonumber(text) or 0
 end)
