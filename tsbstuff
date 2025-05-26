@@ -6,14 +6,17 @@ local lp = Players.LocalPlayer
 local Window = Library:NewWindow("tsbstuff")
 local Tab = Window:NewSection("Visuals & Physics")
 
+local camera = workspace.CurrentCamera
 local ModdingSpeed = false
 local HowFast = 0
+local ModFOV = false
+local ModGravity = false
 
--- Speed Toggle
+
 Tab:CreateToggle("Mod Speed", function(value)
     ModdingSpeed = value
 
-    -- Start loop when toggled ON
+
     if value then
         task.spawn(function()
             while ModdingSpeed do
@@ -30,7 +33,48 @@ Tab:CreateToggle("Mod Speed", function(value)
     end
 end)
 
--- Speed Value
-Tab:CreateTextbox("Speed", function(text)
+
+Tab:CreateTextbox("0", function(text)
     HowFast = tonumber(text) or 0
 end)
+
+
+Tab:CreateToggle("Mod FOV", function(value)
+
+ModFOV = value
+
+end)
+
+Tab:CreateTextbox("70", function(text)
+
+if ModFOV then
+
+camera.FieldOfView = tonumber(text) or 70
+
+else
+
+camera.FieldOfView =  70
+
+end
+
+end)
+
+Tab:CreateToggle("Mod Gravity", function(value)
+
+ModGravity = value
+
+end)
+
+Tab:CreateTextbox("TextBox", function(text)
+if ModGravity then
+
+game.Workspace.Gravity = tonumber(text) or 196.2
+
+else
+
+game.Workspace.Gravity = 196.2
+end)
+
+
+
+
