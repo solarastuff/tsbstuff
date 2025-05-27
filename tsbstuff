@@ -1,109 +1,146 @@
 local Library = loadstring(Game:HttpGet("https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wizard"))()
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
 local lp = Players.LocalPlayer
+local camera = workspace.CurrentCamera
 
 local Window = Library:NewWindow("tsbstuff")
 local Tab = Window:NewSection("Visuals & Physics")
 
-local camera = workspace.CurrentCamera
+-- Speed Mod
 local ModdingSpeed = false
 local HowFast = 0
-local ModFOV = false
-local ModGravity = false
-
 
 Tab:CreateToggle("Mod Speed", function(value)
-    ModdingSpeed = value
-
-
-    if value then
-        task.spawn(function()
-            while ModdingSpeed do
-                local char = lp.Character
-                local hum = char and char:FindFirstChildWhichIsA("Humanoid")
-                if char and hum and hum.MoveDirection.Magnitude > 0 then
-                    local delta = RunService.Heartbeat:Wait()
-                    char:TranslateBy(hum.MoveDirection * delta * HowFast)
-                else
-                    RunService.Heartbeat:Wait()
-                end
-            end
-        end)
-    end
+	ModdingSpeed = value
+	if value then
+		task.spawn(function()
+			while ModdingSpeed do
+				local char = lp.Character
+				local hum = char and char:FindFirstChildWhichIsA("Humanoid")
+				if char and hum and hum.MoveDirection.Magnitude > 0 then
+					local delta = RunService.Heartbeat:Wait()
+					char:TranslateBy(hum.MoveDirection * delta * HowFast)
+				else
+					RunService.Heartbeat:Wait()
+				end
+			end
+		end)
+	end
 end)
-
 
 Tab:CreateTextbox("0", function(text)
-    HowFast = tonumber(text) or 0
+	HowFast = tonumber(text) or 0
 end)
 
-
-
-
+-- FOV Mod
+local ModFOV = false
 
 Tab:CreateToggle("Mod FOV", function(value)
-
-ModFOV = value
-
+	ModFOV = value
 end)
 
 Tab:CreateTextbox("70", function(text)
-
-if ModFOV then
-while ModFOV do
-camera.FieldOfView = tonumber(text) or 70
-task.wait(0.1)
-
-if not ModFOV then
-camera.FieldOfView =  70
-break
-
-end
-
-end
-
-else
-
-camera.FieldOfView =  70
-
-end
-
+	if ModFOV then
+		while ModFOV do
+			camera.FieldOfView = tonumber(text) or 70
+			task.wait(0.1)
+			if not ModFOV then
+				camera.FieldOfView = 70
+				break
+			end
+		end
+	else
+		camera.FieldOfView = 70
+	end
 end)
 
+-- Gravity Mod
+local ModGravity = false
+
 Tab:CreateToggle("Mod Gravity", function(value)
-
-ModGravity = value
-
+	ModGravity = value
 end)
 
 Tab:CreateTextbox("196.2", function(text)
-if ModGravity then
-
-while ModGravity do
-
-game.Workspace.Gravity = tonumber(text) or 196.2
-
-task.wait(0.1)
-
-if not ModGravity then
-game.Workspace.Gravity = 196.2
-break
-
-
-end
-
-end
-
-else
-
-game.Workspace.Gravity = 196.2
-end
-
-
-
+	if ModGravity then
+		while ModGravity do
+			workspace.Gravity = tonumber(text) or 196.2
+			task.wait(0.1)
+			if not ModGravity then
+				workspace.Gravity = 196.2
+				break
+			end
+		end
+	else
+		workspace.Gravity = 196.2
+	end
 end)
 
+-- Auto Twisted Tech
+Tab:CreateToggle("auto twisted", function(value)
+	local MOVE_BACKWARD_WAIT = 1.37
+	local DASH_WAIT = 0.01
+	local MOVE_STUDS = 3
+	local startButton
 
+	local function fireServer(args)
+		lp.Character.Communicate:FireServer(unpack(args))
+	end
 
+	local function getNil(name, class)
+		for _, v in ipairs(getnilinstances()) do
+			if v.Name == name and v:IsA(class) then
+				return v
+			end
+		end
+	end
 
+	local function autoKyotoSequence()
+		local args1 = { [1] = { ["Mobile"] = true, ["Goal"] = "LeftClick" } }
+		fireServer(args1)
+		task.wait(MOVE_BACKWARD_WAIT)
+		local args2 = { [1] = { ["Goal"] = "LeftClickRelease", ["Mobile"] = true } }
+		fireServer(args2)
+		local root = lp.Character.HumanoidRootPart
+		lp.Character.Humanoid:MoveTo(root.Position - (root.CFrame.LookVector * MOVE_STUDS))
+		lp.Character.Humanoid.MoveToFinished:Wait()
+		task.wait(DASH_WAIT)
+		local args3 = { [1] = { ["Dash"] = Enum.KeyCode.W, ["Key"] = Enum.KeyCode.Q, ["Goal"] = "KeyPress" } }
+		fireServer(args3)
+		local bv = getNil("moveme", "BodyVelocity")
+		if bv then
+			local args4 = { [1] = { ["Goal"] = "delete bv", ["BV"] = bv } }
+			fireServer(args4)
+		end
+	end
+
+	if value then
+		if UIS.TouchEnabled and not UIS.KeyboardEnabled then
+			-- Mobile
+			local gui = Instance.new("ScreenGui", lp:WaitForChild("PlayerGui"))
+			gui.Name = "AutoTwistedTechMobile"
+			startButton = Instance.new("TextButton", gui)
+			startButton.Position = UDim2.new(0.5, -70, 0.6, 0)
+			startButton.Size = UDim2.new(0, 140, 0, 50)
+			startButton.Text = "Start Combo"
+			startButton.TextScaled = true
+			startButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+			startButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+			startButton.MouseButton1Click:Connect(autoKyotoSequence)
+		elseif UIS.KeyboardEnabled then
+			-- PC
+			UIS.InputBegan:Connect(function(input, gameProcessed)
+				if gameProcessed then return end
+				if input.KeyCode == Enum.KeyCode.T then
+					autoKyotoSequence()
+				end
+			end)
+		end
+	else
+		-- Toggle Off
+		local gui = lp:FindFirstChild("PlayerGui"):FindFirstChild("AutoTwistedTechMobile")
+		if gui then gui:Destroy() end
+	end
+end)
