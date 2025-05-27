@@ -36,45 +36,53 @@ end)
 
 -- FOV Mod
 local ModFOV = false
+local FOVAmount = 70
 
 Tab:CreateToggle("Mod FOV", function(value)
 	ModFOV = value
-end)
-
-Tab:CreateTextbox("70", function(text)
-	if ModFOV then
-		while ModFOV do
-			camera.FieldOfView = tonumber(text) or 70
-			task.wait(0.1)
-			if not ModFOV then
-				camera.FieldOfView = 70
-				break
+	if value then
+		task.spawn(function()
+			while ModFOV do
+				camera.FieldOfView = FOVAmount
+				task.wait(0.1)
 			end
-		end
+			camera.FieldOfView = 70
+		end)
 	else
 		camera.FieldOfView = 70
 	end
 end)
 
+Tab:CreateTextbox("70", function(text)
+	FOVAmount = tonumber(text) or 70
+	if ModFOV then
+		camera.FieldOfView = FOVAmount
+	end
+end)
+
 -- Gravity Mod
 local ModGravity = false
+local GravityAmount = 196.2
 
 Tab:CreateToggle("Mod Gravity", function(value)
 	ModGravity = value
+	if value then
+		task.spawn(function()
+			while ModGravity do
+				workspace.Gravity = GravityAmount
+				task.wait(0.1)
+			end
+			workspace.Gravity = 196.2
+		end)
+	else
+		workspace.Gravity = 196.2
+	end
 end)
 
 Tab:CreateTextbox("196.2", function(text)
+	GravityAmount = tonumber(text) or 196.2
 	if ModGravity then
-		while ModGravity do
-			workspace.Gravity = tonumber(text) or 196.2
-			task.wait(0.1)
-			if not ModGravity then
-				workspace.Gravity = 196.2
-				break
-			end
-		end
-	else
-		workspace.Gravity = 196.2
+		workspace.Gravity = GravityAmount
 	end
 end)
 
@@ -118,7 +126,6 @@ Tab:CreateToggle("auto twisted", function(value)
 
 	if value then
 		if UIS.TouchEnabled and not UIS.KeyboardEnabled then
-			-- Mobile
 			local gui = Instance.new("ScreenGui", lp:WaitForChild("PlayerGui"))
 			gui.Name = "AutoTwistedTechMobile"
 			startButton = Instance.new("TextButton", gui)
@@ -130,7 +137,6 @@ Tab:CreateToggle("auto twisted", function(value)
 			startButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 			startButton.MouseButton1Click:Connect(autoKyotoSequence)
 		elseif UIS.KeyboardEnabled then
-			-- PC
 			UIS.InputBegan:Connect(function(input, gameProcessed)
 				if gameProcessed then return end
 				if input.KeyCode == Enum.KeyCode.T then
@@ -139,8 +145,12 @@ Tab:CreateToggle("auto twisted", function(value)
 			end)
 		end
 	else
-		-- Toggle Off
 		local gui = lp:FindFirstChild("PlayerGui"):FindFirstChild("AutoTwistedTechMobile")
 		if gui then gui:Destroy() end
 	end
 end)
+
+
+
+local Tab = Window:NewSection("Combat")
+
