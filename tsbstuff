@@ -155,6 +155,12 @@ end)
 local Tab = Window:NewSection("Combat")
 
 
+
+
+
+
+Tab:CreateToggle("Auto Block", function(value)
+
 --===[ Settings and Script Initialization ]===--
 task.spawn(function()
     local players = game:GetService("Players")
@@ -338,10 +344,6 @@ end)
 
 
 end)
-
-
-
-Tab:CreateToggle("Auto Block", function(value)
 
 Settings.Autoparry.Toggle = value
 
