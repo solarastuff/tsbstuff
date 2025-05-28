@@ -553,5 +553,69 @@ end
 end)
 
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+
+local lockedTarget = nil
+local connection = nil
+
+-- Get nearest player
+local function getNearestPlayer()
+	local closestDist = math.huge
+	local closestPlayer = nil
+	for _, player in pairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+			local dist = (HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+			if dist < closestDist then
+				closestDist = dist
+				closestPlayer = player
+			end
+		end
+	end
+	return closestPlayer
+end
+
+-- 🔒 Lock-on function
+function activateLockOn()
+	if not lockedTarget then
+		lockedTarget = getNearestPlayer()
+	end
+
+	if connection then connection:Disconnect() end
+
+	connection = RunService.RenderStepped:Connect(function()
+		if lockedTarget and lockedTarget.Character and lockedTarget.Character:FindFirstChild("HumanoidRootPart") then
+			local targetPos = lockedTarget.Character.HumanoidRootPart.Position
+			local lookVector = (targetPos - HumanoidRootPart.Position).Unit
+			local newCFrame = CFrame.new(HumanoidRootPart.Position, HumanoidRootPart.Position + Vector3.new(lookVector.X, 0, lookVector.Z))
+			HumanoidRootPart.CFrame = newCFrame
+		end
+	end)
+end
+
+-- 🔓 Unlock function
+function deactivateLockOn()
+	if connection then
+		connection:Disconnect()
+		connection = nil
+	end
+	lockedTarget = nil
+end
+
+
+
+
+Tab:CreateToggle("Silent Aim", function(value)
+if value then
+activateLockOn()
+else
+deactivateLockOn()
+
+end
+end)
+
 
 
