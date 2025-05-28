@@ -136,48 +136,76 @@ Tab:CreateToggle("auto twisted", function(value)
 			-- Create draggable frame (invisible wrapper)
 local draggableFrame = Instance.new("Frame", gui)
 draggableFrame.Position = UDim2.new(0.5, -60, 0.6, 0)
-draggableFrame.Size = UDim2.new(0, 120, 0, 45)
+draggableFrame.Size = UDim2.new(0, 64, 0, 58)
 draggableFrame.BackgroundTransparency = 1
 draggableFrame.Active = true
 draggableFrame.Draggable = true
 
--- Create the actual button inside the draggable frame
+-- Create draggable frame (invisible wrapper)
+local draggableFrame = Instance.new("Frame", gui)
+draggableFrame.Position = UDim2.new(0.5, -60, 0.6, 0)
+draggableFrame.Size = UDim2.new(0, 120, 0, 48) -- a tiny taller for balance
+draggableFrame.BackgroundTransparency = 1
+draggableFrame.Active = true
+draggableFrame.Draggable = true
+
+-- Create the button inside draggable frame
 local startButton = Instance.new("TextButton", draggableFrame)
 startButton.Size = UDim2.new(1, 0, 1, 0)
 startButton.Text = "Twisted"
 startButton.TextScaled = true
-startButton.Font = Enum.Font.GothamBold
-startButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-startButton.TextColor3 = Color3.fromRGB(255, 215, 0)
+startButton.Font = Enum.Font.GothamSemibold
+startButton.BackgroundColor3 = Color3.fromRGB(18, 24, 38) -- deep navy blue
+startButton.TextColor3 = Color3.fromRGB(220, 220, 230) -- off-white/silver
 startButton.BorderSizePixel = 0
 startButton.AutoButtonColor = false
 startButton.ZIndex = 2
 startButton.Active = false
 
--- Rounded corners
+-- Rounded corners, smaller radius for square feel
 local corner = Instance.new("UICorner", startButton)
-corner.CornerRadius = UDim.new(0, 8)
+corner.CornerRadius = UDim.new(0, 3)
 
--- Shadow/glow
+-- Shadow/glow subtle, soft black with transparency
 local shadow = Instance.new("Frame", startButton)
 shadow.Size = UDim2.new(1, 0, 1, 0)
 shadow.Position = UDim2.new(0, 3, 0, 3)
-shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+shadow.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
 shadow.BorderSizePixel = 0
-shadow.BackgroundTransparency = 0.6
+shadow.BackgroundTransparency = 0.7
 shadow.ZIndex = 1
-shadow.Parent = startButton
 
 local shadowCorner = Instance.new("UICorner", shadow)
-shadowCorner.CornerRadius = UDim.new(0, 8)
+shadowCorner.CornerRadius = UDim.new(0, 3)
 
--- Hover effect
+-- Hover effect: lighten the navy a bit on hover
 startButton.MouseEnter:Connect(function()
-	startButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	startButton.BackgroundColor3 = Color3.fromRGB(30, 40, 60)
 end)
 
 startButton.MouseLeave:Connect(function()
-	startButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	startButton.BackgroundColor3 = Color3.fromRGB(18, 24, 38)
+end)
+
+-- Drag-safe click logic
+local UserInputService = game:GetService("UserInputService")
+local dragging = false
+local dragStartPos = nil
+local dragThreshold = 5
+
+startButton.MouseButton1Down:Connect(function()
+	dragging = false
+	dragStartPos = UserInputService:GetMouseLocation()
+end)
+
+startButton.MouseButton1Up:Connect(function()
+	local mousePos = UserInputService:GetMouseLocation()
+	local delta = (mousePos - dragStartPos).Magnitude
+
+	if delta <= dragThreshold then
+		print("Button clicked!")
+		-- Put your button action here
+	end
 end)
 			startButton.MouseButton1Click:Connect(autoKyotoSequence)
 		elseif UIS.KeyboardEnabled then
