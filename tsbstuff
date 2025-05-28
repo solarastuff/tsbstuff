@@ -86,6 +86,11 @@ Tab:CreateTextbox("196.2", function(text)
 	end
 end)
 
+
+
+local Tab = Window:NewSection("Kombat")
+
+
 -- Auto Twisted Tech
 Tab:CreateToggle("auto twisted", function(value)
 	local MOVE_BACKWARD_WAIT = 1.37
@@ -128,13 +133,43 @@ Tab:CreateToggle("auto twisted", function(value)
 		if UIS.TouchEnabled and not UIS.KeyboardEnabled then
 			local gui = Instance.new("ScreenGui", lp:WaitForChild("PlayerGui"))
 			gui.Name = "AutoTwistedTechMobile"
-			startButton = Instance.new("TextButton", gui)
-			startButton.Position = UDim2.new(0.5, -70, 0.6, 0)
-			startButton.Size = UDim2.new(0, 140, 0, 50)
-			startButton.Text = "Start Combo"
-			startButton.TextScaled = true
-			startButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-			startButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+			local startButton = Instance.new("TextButton", gui)
+startButton.Position = UDim2.new(0.5, -90, 0.6, 0)
+startButton.Size = UDim2.new(0, 180, 0, 55)
+startButton.Text = "Start Combo"
+startButton.TextScaled = true
+startButton.Font = Enum.Font.GothamBold
+startButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+startButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+startButton.BorderSizePixel = 0
+startButton.AutoButtonColor = false
+
+-- Rounded corners
+local corner = Instance.new("UICorner", startButton)
+corner.CornerRadius = UDim.new(0, 12)
+
+-- Drop shadow
+local shadow = Instance.new("Frame", startButton)
+shadow.Size = UDim2.new(1, 0, 1, 0)
+shadow.Position = UDim2.new(0, 4, 0, 4)
+shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+shadow.BorderSizePixel = 0
+shadow.ZIndex = 0
+shadow.BackgroundTransparency = 0.5
+
+local shadowCorner = Instance.new("UICorner", shadow)
+shadowCorner.CornerRadius = UDim.new(0, 12)
+
+startButton.ZIndex = 1
+
+-- Hover effect
+startButton.MouseEnter:Connect(function()
+	startButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+end)
+
+startButton.MouseLeave:Connect(function()
+	startButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+end)
 			startButton.MouseButton1Click:Connect(autoKyotoSequence)
 		elseif UIS.KeyboardEnabled then
 			UIS.InputBegan:Connect(function(input, gameProcessed)
@@ -150,9 +185,6 @@ Tab:CreateToggle("auto twisted", function(value)
 	end
 end)
 
-
-
-local Tab = Window:NewSection("Kombat")
 
 
 --===[ Settings and Script Initialization ]===--
