@@ -673,34 +673,37 @@ deactivateLockOn()
 end
 end)
 
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local LocalPlayer = Players.LocalPlayer
 local Character
 local HumanoidRootPart
-
 local lockedTarget = nil
 local connection = nil
+local canUseR = true -- default R toggle
+local dashButtonToggleValue = false
 
 -- Setup character + HRP
 local function setupCharacter()
 	Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 	HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 end
-
 setupCharacter()
 
 -- Handle respawn
 LocalPlayer.CharacterAdded:Connect(function()
 	setupCharacter()
 	if connection then
-		activateLockOn() -- auto-reconnect lock if active
+		activateLockOn()
+	end
+	if dashButtonToggleValue then
+		createDashButton()
 	end
 end)
 
--- Find closest player once
+-- Lock-on logic
 local function getNearestPlayer()
 	local closestDist = math.huge
 	local closestPlayer = nil
@@ -716,7 +719,6 @@ local function getNearestPlayer()
 	return closestPlayer
 end
 
--- 🔒 Activate lock-on
 function activateLockOn()
 	if not HumanoidRootPart then return end
 	lockedTarget = getNearestPlayer()
@@ -734,7 +736,6 @@ function activateLockOn()
 	end)
 end
 
--- 🔓 Deactivate lock-on
 function deactivateLockOn()
 	if connection then
 		connection:Disconnect()
@@ -743,100 +744,90 @@ function deactivateLockOn()
 	lockedTarget = nil
 end
 
+-- Dash Button logic
+local function createDashButton()
+	local gui = LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("DashGui")
+	if not gui then
+		gui = Instance.new("ScreenGui")
+		gui.Name = "DashGui"
+		gui.ResetOnSpawn = false
+		gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
+		local button = Instance.new("TextButton")
+		button.Name = "DashButton"
+		button.Size = UDim2.new(0, 150, 0, 50)
+		button.Position = UDim2.new(0.5, -75, 0.8, 0)
+		button.Text = "Click Me"
+		button.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
+		button.TextColor3 = Color3.new(1, 1, 1)
+		button.Parent = gui
 
-local showButton = nil -- 🧠 Control if button shows or not
+		button.MouseButton1Click:Connect(function()
+			local args = {
+				{ Goal = "LeftClick", Mobile = true }
+			}
+			Character:WaitForChild("Communicate"):FireServer(unpack(args))
 
--- Create ScreenGui
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player:WaitForChild("PlayerGui")
+			args = {
+				{ Goal = "KeyPress", Key = Enum.KeyCode.Space }
+			}
+			Character:WaitForChild("Communicate"):FireServer(unpack(args))
 
--- Create Button
-local button = Instance.new("TextButton")
-button.Size = UDim2.new(0, 150, 0, 50)
-button.Position = UDim2.new(0.5, -75, 0.8, 0)
-button.Text = "Click Me"
-button.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
-button.TextColor3 = Color3.new(1, 1, 1)
-button.Visible = showButton -- 👀 Control visibility
-button.Parent = screenGui
+			task.delay(1.37, function()
+				args = {
+					{ Goal = "LeftClickRelease", Mobile = true }
+				}
+				Character:WaitForChild("Communicate"):FireServer(unpack(args))
 
--- Click Function
-button.MouseButton1Click:Connect(function()
-	local args = {
-		{ Goal = "LeftClick", Mobile = true }
-	}
-	character:WaitForChild("Communicate"):FireServer(unpack(args))
+				args = {
+					{ Goal = "KeyRelease", Key = Enum.KeyCode.Space }
+				}
+				Character:WaitForChild("Communicate"):FireServer(unpack(args))
 
-	args = {
-		{ Goal = "KeyPress", Key = Enum.KeyCode.Space }
-	}
-	character:WaitForChild("Communicate"):FireServer(unpack(args))
+				task.wait(0.18)
+				activateLockOn()
 
-	task.delay(1.37, function()
-		args = {
-			{ Goal = "LeftClickRelease", Mobile = true }
-		}
-		character:WaitForChild("Communicate"):FireServer(unpack(args))
+				args = {
+					{ Dash = Enum.KeyCode.W, Key = Enum.KeyCode.Q, Goal = "KeyPress" }
+				}
+				Character:WaitForChild("Communicate"):FireServer(unpack(args))
 
-		args = {
-			{ Goal = "KeyRelease", Key = Enum.KeyCode.Space }
-		}
-		character:WaitForChild("Communicate"):FireServer(unpack(args))
+				task.wait(0.7)
+				deactivateLockOn()
+			end)
+		end)
+	end
+end
 
-		task.wait(0.18)
-		activateLockOn()
+local function destroyDashButton()
+	local gui = LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("DashGui")
+	if gui then
+		gui:Destroy()
+	end
+end
 
-		args = {
-			{ Dash = Enum.KeyCode.W, Key = Enum.KeyCode.Q, Goal = "KeyPress" }
-		}
-		character:WaitForChild("Communicate"):FireServer(unpack(args))
-
-		task.wait(0.7)
-		deactivateLockOn()
-	end)
-end)
-
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
-local function onCharacterAdded(char)
-    local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-
--- Toggle variable
-local canUseR = true  -- Set to false to disable R key functionality
-
--- Function to run when R is pressed
+-- Keyboard R version of dash
 local function doTheThing()
-	-- First input
 	local args = {
 		{ Goal = "LeftClick", Mobile = true }
 	}
-	character:WaitForChild("Communicate"):FireServer(unpack(args))
+	Character:WaitForChild("Communicate"):FireServer(unpack(args))
 
 	args = {
 		{ Goal = "KeyPress", Key = Enum.KeyCode.Space }
 	}
-	character:WaitForChild("Communicate"):FireServer(unpack(args))
+	Character:WaitForChild("Communicate"):FireServer(unpack(args))
 
-	-- Delayed stuff
 	task.delay(1.37, function()
 		args = {
 			{ Goal = "LeftClickRelease", Mobile = true }
 		}
-		character:WaitForChild("Communicate"):FireServer(unpack(args))
+		Character:WaitForChild("Communicate"):FireServer(unpack(args))
 
 		args = {
 			{ Goal = "KeyRelease", Key = Enum.KeyCode.Space }
 		}
-		character:WaitForChild("Communicate"):FireServer(unpack(args))
+		Character:WaitForChild("Communicate"):FireServer(unpack(args))
 
 		task.wait(0.18)
 		activateLockOn()
@@ -844,59 +835,35 @@ local function doTheThing()
 		args = {
 			{ Dash = Enum.KeyCode.W, Key = Enum.KeyCode.Q, Goal = "KeyPress" }
 		}
-		character:WaitForChild("Communicate"):FireServer(unpack(args))
+		Character:WaitForChild("Communicate"):FireServer(unpack(args))
 
 		task.wait(0.7)
 		deactivateLockOn()
 	end)
 end
 
--- Input listener
+-- R key listener
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	if gameProcessed then return end -- ignore typing/chat
-
+	if gameProcessed then return end
 	if input.KeyCode == Enum.KeyCode.R and canUseR then
 		doTheThing()
 	end
 end)
 
-    
-    local hum = char:WaitForChild("Humanoid")
-    local root = char:WaitForChild("HumanoidRootPart")
-
-end
-
-
-player.CharacterAdded:Connect(onCharacterAdded)
-
-
-if player.Character then
-    onCharacterAdded(player.Character)
-end
-
-
-
-
-local UserInputService = game:GetService("UserInputService")
-
+-- Mobile or Keyboard toggle switch
 if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
-    Tab:CreateToggle("Auto Loop Dash", function(value)
-showButton = value
-
-
-
-
-end)
-
-
-
+	Tab:CreateToggle("Auto Loop Dash", function(value)
+		dashButtonToggleValue = value
+		if value then
+			createDashButton()
+		else
+			destroyDashButton()
+		end
+	end)
 else
-  Tab:CreateToggle("Auto Loop Dash", function(value)
-canUseR = value
-
-
-
-end)
-end
+	Tab:CreateToggle("Auto Loop Dash", function(value)
+		canUseR = value
+	end)
+endend
 
 
