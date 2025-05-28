@@ -152,6 +152,7 @@ startButton.TextColor3 = Color3.fromRGB(255, 215, 0)
 startButton.BorderSizePixel = 0
 startButton.AutoButtonColor = false
 startButton.ZIndex = 2
+startButton.Active = false
 
 -- Rounded corners
 local corner = Instance.new("UICorner", startButton)
