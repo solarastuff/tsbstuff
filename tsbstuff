@@ -1,3 +1,44 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+local LiveFolder = workspace:WaitForChild("Live")
+
+-- Disables collisions for all characters in Live except local player
+local function disableOtherCollisions()
+	for _, char in ipairs(LiveFolder:GetChildren()) do
+		if char:IsA("Model") and char ~= LocalPlayer.Character then
+			for _, part in ipairs(char:GetDescendants()) do
+				if part:IsA("BasePart") then
+					part.CanCollide = false
+				end
+			end
+		end
+	end
+end
+
+-- Makes sure local player’s own parts still collide if needed
+local function ensureLocalCharacterSafe()
+	if LocalPlayer.Character then
+		for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
+			if part:IsA("BasePart") then
+				part.CanCollide = true
+			end
+		end
+	end
+end
+
+-- Hook when local char loads
+LocalPlayer.CharacterAdded:Connect(function()
+	task.wait(0.1) -- tiny delay to let model fully load
+	ensureLocalCharacterSafe()
+end)
+
+-- Update every frame just in case new chars spawn
+RunService.RenderStepped:Connect(function()
+	disableOtherCollisions()
+end)
+
 local Library = loadstring(Game:HttpGet("https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wizard"))()
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
