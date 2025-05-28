@@ -555,14 +555,31 @@ end)
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+
 local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+local Character
+local HumanoidRootPart
 
 local lockedTarget = nil
 local connection = nil
 
--- Get nearest player
+-- Setup character + HRP
+local function setupCharacter()
+	Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+	HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+end
+
+setupCharacter()
+
+-- Handle respawn
+LocalPlayer.CharacterAdded:Connect(function()
+	setupCharacter()
+	if connection then
+		activateLockOn() -- auto-reconnect lock if active
+	end
+end)
+
+-- Find closest player once
 local function getNearestPlayer()
 	local closestDist = math.huge
 	local closestPlayer = nil
@@ -578,11 +595,11 @@ local function getNearestPlayer()
 	return closestPlayer
 end
 
--- 🔒 Lock-on function
+-- 🔒 Activate lock-on
 function activateLockOn()
-	if not lockedTarget then
-		lockedTarget = getNearestPlayer()
-	end
+	if not HumanoidRootPart then return end
+	lockedTarget = getNearestPlayer()
+	if not lockedTarget then return end
 
 	if connection then connection:Disconnect() end
 
@@ -596,7 +613,7 @@ function activateLockOn()
 	end)
 end
 
--- 🔓 Unlock function
+-- 🔓 Deactivate lock-on
 function deactivateLockOn()
 	if connection then
 		connection:Disconnect()
@@ -604,8 +621,6 @@ function deactivateLockOn()
 	end
 	lockedTarget = nil
 end
-
-
 
 
 Tab:CreateToggle("Silent Aim", function(value)
@@ -617,5 +632,235 @@ deactivateLockOn()
 end
 end)
 
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+local Character
+local HumanoidRootPart
+
+local lockedTarget = nil
+local connection = nil
+
+-- Setup character + HRP
+local function setupCharacter()
+	Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+	HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+end
+
+setupCharacter()
+
+-- Handle respawn
+LocalPlayer.CharacterAdded:Connect(function()
+	setupCharacter()
+	if connection then
+		activateLockOn() -- auto-reconnect lock if active
+	end
+end)
+
+-- Find closest player once
+local function getNearestPlayer()
+	local closestDist = math.huge
+	local closestPlayer = nil
+	for _, player in pairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+			local dist = (HumanoidRootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+			if dist < closestDist then
+				closestDist = dist
+				closestPlayer = player
+			end
+		end
+	end
+	return closestPlayer
+end
+
+-- 🔒 Activate lock-on
+function activateLockOn()
+	if not HumanoidRootPart then return end
+	lockedTarget = getNearestPlayer()
+	if not lockedTarget then return end
+
+	if connection then connection:Disconnect() end
+
+	connection = RunService.RenderStepped:Connect(function()
+		if lockedTarget and lockedTarget.Character and lockedTarget.Character:FindFirstChild("HumanoidRootPart") then
+			local targetPos = lockedTarget.Character.HumanoidRootPart.Position
+			local lookVector = (targetPos - HumanoidRootPart.Position).Unit
+			local newCFrame = CFrame.new(HumanoidRootPart.Position, HumanoidRootPart.Position + Vector3.new(lookVector.X, 0, lookVector.Z))
+			HumanoidRootPart.CFrame = newCFrame
+		end
+	end)
+end
+
+-- 🔓 Deactivate lock-on
+function deactivateLockOn()
+	if connection then
+		connection:Disconnect()
+		connection = nil
+	end
+	lockedTarget = nil
+end
+
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+local showButton = true -- 🧠 Control if button shows or not
+
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Create Button
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(0, 150, 0, 50)
+button.Position = UDim2.new(0.5, -75, 0.8, 0)
+button.Text = "Click Me"
+button.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
+button.TextColor3 = Color3.new(1, 1, 1)
+button.Visible = showButton -- 👀 Control visibility
+button.Parent = screenGui
+
+-- Click Function
+button.MouseButton1Click:Connect(function()
+	local args = {
+		{ Goal = "LeftClick", Mobile = true }
+	}
+	character:WaitForChild("Communicate"):FireServer(unpack(args))
+
+	args = {
+		{ Goal = "KeyPress", Key = Enum.KeyCode.Space }
+	}
+	character:WaitForChild("Communicate"):FireServer(unpack(args))
+
+	task.delay(1.37, function()
+		args = {
+			{ Goal = "LeftClickRelease", Mobile = true }
+		}
+		character:WaitForChild("Communicate"):FireServer(unpack(args))
+
+		args = {
+			{ Goal = "KeyRelease", Key = Enum.KeyCode.Space }
+		}
+		character:WaitForChild("Communicate"):FireServer(unpack(args))
+
+		task.wait(0.18)
+		activateLockOn()
+
+		args = {
+			{ Dash = Enum.KeyCode.W, Key = Enum.KeyCode.Q, Goal = "KeyPress" }
+		}
+		character:WaitForChild("Communicate"):FireServer(unpack(args))
+
+		task.wait(0.7)
+		deactivateLockOn()
+	end)
+end)
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local function onCharacterAdded(char)
+    local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Toggle variable
+local canUseR = true  -- Set to false to disable R key functionality
+
+-- Function to run when R is pressed
+local function doTheThing()
+	-- First input
+	local args = {
+		{ Goal = "LeftClick", Mobile = true }
+	}
+	character:WaitForChild("Communicate"):FireServer(unpack(args))
+
+	args = {
+		{ Goal = "KeyPress", Key = Enum.KeyCode.Space }
+	}
+	character:WaitForChild("Communicate"):FireServer(unpack(args))
+
+	-- Delayed stuff
+	task.delay(1.37, function()
+		args = {
+			{ Goal = "LeftClickRelease", Mobile = true }
+		}
+		character:WaitForChild("Communicate"):FireServer(unpack(args))
+
+		args = {
+			{ Goal = "KeyRelease", Key = Enum.KeyCode.Space }
+		}
+		character:WaitForChild("Communicate"):FireServer(unpack(args))
+
+		task.wait(0.18)
+		activateLockOn()
+
+		args = {
+			{ Dash = Enum.KeyCode.W, Key = Enum.KeyCode.Q, Goal = "KeyPress" }
+		}
+		character:WaitForChild("Communicate"):FireServer(unpack(args))
+
+		task.wait(0.7)
+		deactivateLockOn()
+	end)
+end
+
+-- Input listener
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end -- ignore typing/chat
+
+	if input.KeyCode == Enum.KeyCode.R and canUseR then
+		doTheThing()
+	end
+end)
+
+    
+    local hum = char:WaitForChild("Humanoid")
+    local root = char:WaitForChild("HumanoidRootPart")
+
+end
+
+
+player.CharacterAdded:Connect(onCharacterAdded)
+
+
+if player.Character then
+    onCharacterAdded(player.Character)
+end
+
+
+
+
+local UserInputService = game:GetService("UserInputService")
+
+if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+    Tab:CreateToggle("Auto Loop Dash", function(value)
+if value then
+showButton = true
+else
+showButtom = false
+
+end
+
+
+
+
+end)
+
+
+
+else
+  Tab:CreateToggle("Auto Loop Dash", function(value)
+canUseR = value
+
+
+
+end)
+end
 
 
