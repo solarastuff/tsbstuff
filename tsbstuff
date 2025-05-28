@@ -864,6 +864,6 @@ else
 	Tab:CreateToggle("Auto Loop Dash", function(value)
 		canUseR = value
 	end)
-endend
+end
 
 
