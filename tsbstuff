@@ -707,7 +707,7 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 
-local showButton = true -- 🧠 Control if button shows or not
+local showButton = false -- 🧠 Control if button shows or not
 
 -- Create ScreenGui
 local screenGui = Instance.new("ScreenGui")
