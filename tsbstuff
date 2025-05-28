@@ -133,41 +133,50 @@ Tab:CreateToggle("auto twisted", function(value)
 		if UIS.TouchEnabled and not UIS.KeyboardEnabled then
 			local gui = Instance.new("ScreenGui", lp:WaitForChild("PlayerGui"))
 			gui.Name = "AutoTwistedTechMobile"
-			local twistedButton = Instance.new("TextButton", gui)
-twistedButton.Position = UDim2.new(0.5, -60, 0.6, 0)
-twistedButton.Size = UDim2.new(0, 120, 0, 45)
-twistedButton.Text = "Twisted"
-twistedButton.TextScaled = true
-twistedButton.Font = Enum.Font.GothamBold
-twistedButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-twistedButton.TextColor3 = Color3.fromRGB(255, 215, 0) -- gold text
-twistedButton.BorderSizePixel = 0
-twistedButton.AutoButtonColor = false
-twistedButton.ZIndex = 2
+			-- Create draggable frame (invisible wrapper)
+local draggableFrame = Instance.new("Frame", gui)
+draggableFrame.Position = UDim2.new(0.5, -60, 0.6, 0)
+draggableFrame.Size = UDim2.new(0, 120, 0, 45)
+draggableFrame.BackgroundTransparency = 1
+draggableFrame.Active = true
+draggableFrame.Draggable = true
 
--- Rounded corners, slightly tighter
-local corner = Instance.new("UICorner", twistedButton)
+-- Create the actual button inside the draggable frame
+local startButton = Instance.new("TextButton", draggableFrame)
+startButton.Size = UDim2.new(1, 0, 1, 0)
+startButton.Text = "Twisted"
+startButton.TextScaled = true
+startButton.Font = Enum.Font.GothamBold
+startButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+startButton.TextColor3 = Color3.fromRGB(255, 215, 0)
+startButton.BorderSizePixel = 0
+startButton.AutoButtonColor = false
+startButton.ZIndex = 2
+
+-- Rounded corners
+local corner = Instance.new("UICorner", startButton)
 corner.CornerRadius = UDim.new(0, 8)
 
--- Glow/shadow
-local shadow = Instance.new("Frame", twistedButton)
+-- Shadow/glow
+local shadow = Instance.new("Frame", startButton)
 shadow.Size = UDim2.new(1, 0, 1, 0)
 shadow.Position = UDim2.new(0, 3, 0, 3)
 shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 shadow.BorderSizePixel = 0
 shadow.BackgroundTransparency = 0.6
 shadow.ZIndex = 1
+shadow.Parent = startButton
 
 local shadowCorner = Instance.new("UICorner", shadow)
 shadowCorner.CornerRadius = UDim.new(0, 8)
 
--- Hover effect (smooth, stylish)
-twistedButton.MouseEnter:Connect(function()
-	twistedButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+-- Hover effect
+startButton.MouseEnter:Connect(function()
+	startButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 end)
 
-twistedButton.MouseLeave:Connect(function()
-	twistedButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+startButton.MouseLeave:Connect(function()
+	startButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 end)
 			startButton.MouseButton1Click:Connect(autoKyotoSequence)
 		elseif UIS.KeyboardEnabled then
