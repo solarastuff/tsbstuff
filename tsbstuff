@@ -881,12 +881,7 @@ local UserInputService = game:GetService("UserInputService")
 
 if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
     Tab:CreateToggle("Auto Loop Dash", function(value)
-if value then
-showButton = true
-else
-showButtom = false
-
-end
+showButton = value
 
 
 
