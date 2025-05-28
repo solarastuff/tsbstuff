@@ -152,7 +152,7 @@ end)
 
 
 
-local Tab = Window:NewSection("Combat")
+local Tab = Window:NewSection("Kombat")
 
 
 --===[ Settings and Script Initialization ]===--
@@ -341,11 +341,148 @@ end)
 
 
 
-Tab:CreateToggle("Auto Block test", function(value)
+Tab:CreateToggle("Auto Block", function(value)
 
 
 Settings.Autoparry.Toggle = value
 
 end)
+
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local localPlayer = Players.LocalPlayer
+local liveFolder = workspace:WaitForChild("Live")
+
+-- SETTINGS
+local CHECK_INTERVAL = 0.1
+local TELEPORT_DISTANCE = 20
+
+local currentWeldedPart = nil
+local touchConnection = nil
+local renderConnection = nil
+
+local function getNearestPlayer()
+	local closestPlayer = nil
+	local shortestDistance = math.huge
+	local myCharacter = liveFolder:FindFirstChild(localPlayer.Name)
+	if not myCharacter or not myCharacter:FindFirstChild("HumanoidRootPart") then return nil end
+
+	for _, character in pairs(liveFolder:GetChildren()) do
+		if character:IsA("Model") and character ~= myCharacter and character:FindFirstChild("HumanoidRootPart") then
+			local dist = (myCharacter.HumanoidRootPart.Position - character.HumanoidRootPart.Position).Magnitude
+			if dist < shortestDistance then
+				shortestDistance = dist
+				closestPlayer = character
+			end
+		end
+	end
+	return closestPlayer
+end
+
+local function teleportAwayFromPart(part)
+	local myCharacter = liveFolder:FindFirstChild(localPlayer.Name)
+	if not myCharacter or not myCharacter:FindFirstChild("HumanoidRootPart") then return end
+
+	local hrp = myCharacter.HumanoidRootPart
+	local direction = (hrp.Position - part.Position).Unit
+	local newPos = part.Position + direction * TELEPORT_DISTANCE
+	hrp.CFrame = CFrame.new(newPos, newPos + hrp.CFrame.LookVector)
+end
+
+local function setupTouchListener(part)
+	if part == nil then return end
+
+	local connection
+	connection = part.Touched:Connect(function(hit)
+		local myCharacter = liveFolder:FindFirstChild(localPlayer.Name)
+		if myCharacter and hit:IsDescendantOf(myCharacter) then
+			teleportAwayFromPart(part)
+		end
+	end)
+
+	return connection
+end
+
+local function StartSystem()
+	if renderConnection then return end -- Already running
+
+	renderConnection = RunService.RenderStepped:Connect(function()
+		local targetChar = getNearestPlayer()
+		if not targetChar then
+			if currentWeldedPart then
+				currentWeldedPart:Destroy()
+				currentWeldedPart = nil
+			end
+			if touchConnection then
+				touchConnection:Disconnect()
+				touchConnection = nil
+			end
+			return
+		end
+
+		local m1ing = targetChar:FindFirstChild("M1ing")
+		if m1ing and not currentWeldedPart then
+			local part = Instance.new("Part")
+			part.Size = Vector3.new(15, 20, 10)
+			part.Shape = Enum.PartType.Block
+			part.Anchored = false
+			part.CanCollide = false
+			part.Transparency = 0.5
+			part.BrickColor = BrickColor.new("Bright red")
+			part.Name = "M1Hitbox"
+
+			local arm = targetChar:FindFirstChild("Right Arm") or targetChar:FindFirstChild("RightHand")
+			if arm then
+				part.CFrame = arm.CFrame
+				part.Parent = targetChar
+
+				local weld = Instance.new("WeldConstraint")
+				weld.Part0 = part
+				weld.Part1 = arm
+				weld.Parent = part
+
+				currentWeldedPart = part
+				touchConnection = setupTouchListener(part)
+			else
+				part:Destroy()
+			end
+		elseif not m1ing and currentWeldedPart then
+			currentWeldedPart:Destroy()
+			currentWeldedPart = nil
+			if touchConnection then
+				touchConnection:Disconnect()
+				touchConnection = nil
+			end
+		end
+	end)
+end
+
+local function StopSystem()
+	if renderConnection then
+		renderConnection:Disconnect()
+		renderConnection = nil
+	end
+	if currentWeldedPart then
+		currentWeldedPart:Destroy()
+		currentWeldedPart = nil
+	end
+	if touchConnection then
+		touchConnection:Disconnect()
+		touchConnection = nil
+	end
+end
+
+Tab:CreateToggle("auto dodge M1's", function(value)
+if value then
+StartSystem()
+else
+StopSystem()
+
+end
+end)
+
+
 
 
